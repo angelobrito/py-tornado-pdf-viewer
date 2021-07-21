@@ -1,4 +1,48 @@
+#explorer {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: table;
+}
+
+#fileSelector {
+    display: table-cell;
+    min-width: 300px;
+    max-width: 10%;
+    height: 100%;
+    border: 1px solid black;
+    background: whitesmoke;
+}
+
+#navigator {
+    display: flex;
+    min-width: 300px;
+    max-width: 10%;
+    height: 25px;
+}
+
 #the-canvas {
+    display: flex;
     border: 1px solid black;
     direction: ltr;
+    margin-left: 2px;
+    max-width: 90%;
+    max-height: 100%;
+    min-width: 200px;
+    min-height: 200px;
+}
+
+ul {
+    margin: 0px;
+}
+
+ul li {
+    background: #cce5ff;
+    margin: 5px;
+    border: 1px thin black;
+    height: 38px;
+}
+
+ul li:hover {
+    background: #ffff00;
 }

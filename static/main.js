@@ -1,5 +1,14 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = './static/build/pdf.worker.js';
 
+var pdfDoc = null,
+    pageNum = 0,
+    numPages = 0,
+    pageRendering = false,
+    pageNumPending = null,
+    scale = 1,
+    canvas = null,
+    ctx = null;
+
 function show_pdfDocument(url){
   
   console.log('PDF document new url='+url);
@@ -7,61 +16,96 @@ function show_pdfDocument(url){
   // Loaded via <script> tag, create shortcut to access PDF.js exports.
   console.log(pdfjsLib);
 
-  // The workerSrc property shall be specified.
-
   // Asynchronous download of PDF
-  var loadingTask = pdfjsLib.getDocument(url);
-  loadingTask.promise.then(function(pdf) {
-    console.log('PDF loaded');
-    
+  pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+    pdfDoc = pdfDoc_;
+    console.log('PDF loaded:' + url);
+
+    document.getElementById('page_count').textContent = pdfDoc.numPages;
+    canvas = document.getElementById('the-canvas');
+    ctx    = canvas.getContext('2d'); 
+
     // Fetch the first page
-    var pageNumber = 1;
-    pdf.getPage(pageNumber).then(function(page) {
-      console.log('Page loaded');
-      
-      var scale = 1.5;
-      var viewport = page.getViewport({scale: scale});
-
-      // Prepare canvas using PDF page dimensions
-      var canvas = document.getElementById('the-canvas');
-      var context = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-
-      // Render PDF page into canvas context
-      var renderContext = {
-        canvasContext: context,
-        viewport: viewport
-      };
-      var renderTask = page.render(renderContext);
-      renderTask.promise.then(function () {
-        console.log('Page rendered');
-      });
-    });
+    pageNum = 1;
+    
+    // Initial/first page rendering
+    queueRenderPage(pageNum);
   }, function (reason) {
     // PDF loading error
     console.error(reason);
   });
 }
 
+/**
+ * Get page info from document, resize canvas accordingly, and render page.
+ * @param num Page number.
+ */
+function renderPage(pageNumber) {
+  pageRendering = true;
 
+  // Using promise to fetch the page
+  pdfDoc.getPage(pageNumber).then(function(page) {
+    console.log('Page ' + pageNumber + '/' + numPages + ' loaded')
 
-function pdfToPlainText(pdfData) {
-  PDFJS.disableWorker = true;
-  var pdf = PDFJS.getDocument(pdfData);
-  pdf.then(getPages);
+    var viewport = page.getViewport({scale: scale});
+
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    
+    // Render PDF page into canvas context
+    var renderContext = {
+      canvasContext: ctx,
+      viewport: viewport
+    };
+    var renderTask = page.render(renderContext);
+
+    // Wait for rendering to finish
+    renderTask.promise.then(function() {
+      console.log('Page rendered');
+      pageRendering = false;
+      if (pageNumPending !== null) {
+        // New page rendering is pending
+        renderPage(pageNumPending);
+        pageNumPending = null;
+      }
+    });
+  });
+
+  // Update page counters
+  document.getElementById('page_num').textContent = pageNumber;
 }
 
-function getPages(pdf) {
-  for (var i = 0; i < pdf.numPages; i++) {
-    pdf.getPage(i + 1).then(getPageText);
+/**
+ * If another page rendering in progress, waits until the rendering is
+ * finised. Otherwise, executes rendering immediately.
+ */
+function queueRenderPage(pageNumber) {
+  console.log('PDF page ' + pageNumber + ' rendering queued');
+  if (pageRendering) {
+    pageNumPending = pageNumber;
+  } else {
+    renderPage(pageNumber);
   }
 }
 
-function getPageText(page) {
-  page.getTextContent().then(function(textContent) {
-    textContent.forEach(function(o) {
-      $("#pdf").append(o.str + '</br>');
-    });
-  });
+/**
+ * Displays previous page.
+ */
+function onPrevPage() {
+  if (pageNum <= 1) {
+    return;
+  }
+  pageNum--;
+  queueRenderPage(pageNum);
+}
+
+/**
+ * Displays next page.
+ */
+function onNextPage() {
+  if (pageNum >= pdfDoc.numPages) {
+    return;
+  }
+  pageNum++;
+  queueRenderPage(pageNum);
 }
