@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='{{ static_url("main.css") }}'>
+    <!--
+        <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.js"></script>
+    -->
+    <script src='{{ static_url("require.js") }}' type="application/javascript"></script>
+    <script src='{{ static_url("build/pdf.js") }}'></script> 
+    <script src='{{ static_url("main.js") }}' type="application/javascript"></script>
+</head>
+<body onload=''>
+    <script type='application/javascript'>
+        console.log(window);
+        //pdfToPlainText('{{ static_url("Coffee Menu - May 2021.pdf") }}');
+        show_pdfDocument('{{ static_url("Coffee Menu - May 2021.pdf") }}');
+    </script>
+    <h1>{{ message }}</h1>
+    <canvas id='the-canvas'></canvas>
+    <div id="pdf"></div>
+    <a href='{{ static_url("web/viewer.html") }}&file=Coffee Menu - May 2021.pdf'>some PDF Document on viewer</a>
+</body>
+</html>
