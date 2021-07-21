@@ -5,7 +5,7 @@ var pdfDoc = null,
     numPages = 0,
     pageRendering = false,
     pageNumPending = null,
-    scale = 1,
+    scale = 1.5,
     canvas = null,
     ctx = null;
 
