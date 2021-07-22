@@ -1,4 +1,4 @@
-pdfjsLib.GlobalWorkerOptions.workerSrc = './static/build/pdf.worker.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs-dist-2.6.347/package/es5/build/pdf.worker.js';
 
 var pdfDoc = null,
     pageNum = 0,

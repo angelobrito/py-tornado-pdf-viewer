@@ -27,6 +27,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", MainHandler),
             # Add more paths here
+            (r'/lib/(.*)', tornado.web.StaticFileHandler, {'path': 'lib/'}),
             (r'/static/files/(.*)', tornado.web.StaticFileHandler, {'path': 'static/files/'}),
             (r"/KillTornado/", StopTornado)
         ]
